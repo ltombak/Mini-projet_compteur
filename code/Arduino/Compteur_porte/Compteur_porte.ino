@@ -12,7 +12,7 @@ float s;
 
 NewPing sonar1(trigPin, echoPin, 400);
 NewPing sonar2(trigPin2, echoPin2, 400);
-
+/*
 double distance(int triggerPin, int echoPin){
   
   float SOUND_SPEED = 340.0 / 1000; // vitesse du son en mm/uS
@@ -33,7 +33,7 @@ double distance(int triggerPin, int echoPin){
         return (distance_mm / 10.0);// On renvoi la valeur en cm
     }
 }
-
+*/
 void setup() {
   M5.begin();
   /*pinMode(trigPin, OUTPUT); 
