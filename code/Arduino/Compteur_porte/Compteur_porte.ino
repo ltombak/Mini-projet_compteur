@@ -1,12 +1,17 @@
 #include<M5Stack.h>
+#include <NewPing.h>
+
 const int trigPin = 22;
 const int echoPin = 21;
-const int trigPin2 = 3;
-const int echoPin2 = 1;
+const int trigPin2 = 16;
+const int echoPin2 = 17;
 long dur;
 float dis,dis2;
 float c;
 float s;
+
+NewPing sonar1(trigPin, echoPin, 400);
+NewPing sonar2(trigPin2, echoPin2, 400);
 
 double distance(int triggerPin, int echoPin){
   
@@ -19,7 +24,7 @@ double distance(int triggerPin, int echoPin){
   delayMicroseconds(10);
   digitalWrite(triggerPin, LOW);// On éteint
 
-  long measure = pulseIn(echoPin, HIGH, MEASURE_TIMEOUT);// Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe)
+  long measure = pulseIn(echoPin, HIGH);// Mesure le temps entre l'envoi de l'impulsion ultrasonique et son écho (si il existe)
   float distance_mm = (measure / 2.0) * SOUND_SPEED;// Calcul la distance à partir du temps mesuré
 
   if (distance_mm < 1 || distance_mm > 3000) {// Condition pour vérifier qu'on est dans les limites voulues
@@ -31,10 +36,11 @@ double distance(int triggerPin, int echoPin){
 
 void setup() {
   M5.begin();
-  pinMode(trigPin, OUTPUT); 
+  /*pinMode(trigPin, OUTPUT); 
   pinMode(echoPin, INPUT);// put your setup code here, to run once:
   pinMode(trigPin2, OUTPUT); 
   pinMode(echoPin2, INPUT);// put your setup code here, to run once:
+  */
   M5.Lcd.fillScreen(BLUE);
   M5.Lcd.setTextColor(WHITE);
   M5.Lcd.setTextSize(3);
@@ -55,9 +61,10 @@ void loop() {
   digitalWrite(trigPin, LOW);
   dur = pulseIn(echoPin, HIGH);
   dis= dur*0.034/2;*/
-  dis = distance(trigPin, echoPin);
-  delayMicroseconds(10);
-  dis2 = distance(trigPin2, echoPin2);
+  dis = sonar1.ping_cm();
+  delayMicroseconds(50);
+  dis2 = sonar2.ping_cm();
+  delayMicroseconds(50);
  
   /*if (M5.BtnA.wasReleased()) {
      s = dis*dis;
@@ -81,11 +88,14 @@ void loop() {
      M5.Lcd.setCursor(3, 35);
      M5.Lcd.println("DIST1(cm):");
      M5.Lcd.setTextSize(9);
-     M5.Lcd.setCursor(3, 55);
+     M5.Lcd.setCursor(3, 60);
      M5.Lcd.print(dis);
      M5.Lcd.setTextSize(3);
-     M5.Lcd.setCursor(3, 110);
-     M5.Lcd.println("DIST1(cm):");
+     M5.Lcd.setCursor(3, 120);
+     M5.Lcd.println("DIST2(cm):");
+     M5.Lcd.setTextSize(9);
+     M5.Lcd.setCursor(3, 155);
+     M5.Lcd.print(dis2);
   }
   if (M5.BtnB.wasReleased()) {
      M5.Lcd.clear(BLUE);
