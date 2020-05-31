@@ -83,6 +83,7 @@ void resetSelect(){
     select[i]=0;
   }
 }
+
 void nextButton(){
   buttonSelect += 1;
   resetSelect();
@@ -118,6 +119,12 @@ void menuOption (){
         case 0: // activate the auto count of peoples
           aeraAutoCount = not(aeraAutoCount);
           break;
+        case 1:
+          action = 0;
+          menu = 2;
+          menuSurface();
+          break;
+          
         case 2: // Go to the counter
           action = 0;
           if (aeraAutoCount and surface < 10){
@@ -169,6 +176,47 @@ void menuOption (){
   
   drawButtonSection( btnName1, btnName2, btnName3);
 
+}
+
+void menuSurface(){
+  // action section {none, btnA, btnB, btnC}
+  switch(action){
+    case 0:
+      break;
+    case 1: // btnA
+      break;
+    case 2: // btnB
+      break;
+    case 3: // Go to the option menu btnC
+      menu = 0;
+      action = 0;
+      menuOption();
+      return;
+    default:
+      break;
+  }
+  // Background 
+  M5.Lcd.fillScreen(BLACK);
+  M5.Lcd.setTextColor(WHITE);
+  M5.Lcd.setTextSize(3);
+  M5.Lcd.setCursor(90, 10);
+  M5.Lcd.print("SURFACE:");
+  // Writing poeples number
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.setCursor(10, 50);
+  M5.Lcd.println("surface du magasin");/*
+  
+  delay(1000);
+  M5.Lcd.setTextSize(5);
+  M5.Lcd.setCursor(10,90);
+  compteurDetection();
+  M5.Lcd.print(poeplesNumber);*/
+  // option button section
+  btnName1 = String("");
+  btnName2 = String("");
+  btnName3 = String("Ret.");
+  
+  drawButtonSection( btnName1, btnName2, btnName3);
 }
 
 void menuCounter(){
