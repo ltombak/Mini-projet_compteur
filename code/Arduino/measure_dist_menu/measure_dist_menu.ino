@@ -15,8 +15,18 @@ bool refresh = false;
 bool aeraAutoCount = false;
 bool majDistance = false;
 int action; //action {0, 1, 2, 3} -> {None, buttonA, buttonB, buttonC}
-int poeplesNumber = 0;
+unsigned int poeplesNumber = 0;
+// int for surface 
+int digits[] = {0,1,2,3,4,5,6,7,8,9};
+  // iD[0] = 10e3, iD[1] = 10e2, iD[2] = 10e1, iD[3] = 10e0
+int indexDigits[] = {0,0,0,0};
+int modifDigit = 0; 
+int selectDigits[] = {1,0,0,0};
 #define GRAY  BLUE+0.3*RED
+
+void MAJSurface() {
+  surface = digits[indexDigits[0]]*1000 + digits[indexDigits[1]]*100 + digits[indexDigits[2]]*10 + digits[indexDigits[3]];
+  }
 
 double distance(int triggerPin, int echoPin){
   
@@ -56,12 +66,10 @@ String btnName4 = String("Next");
 
 void drawButton(int x, int y, int w, int h, uint16_t backC, uint16_t textC , String btn1, bool center, bool highlight){
   M5.Lcd.setTextColor(textC);
-  M5.Lcd.setTextSize(2);
   if (highlight){
     M5.Lcd.fillRoundRect(x-2, y-2, w+4 , h+4, 12,WHITE);
   }
   M5.Lcd.fillRoundRect(x, y, w , h, 10,backC); 
-  M5.Lcd.setTextSize(2);
   if (center){
     M5.Lcd.setCursor(x+int(w/2)-int(btn1.length()*6) , y+8); 
   }
@@ -73,6 +81,7 @@ void drawButton(int x, int y, int w, int h, uint16_t backC, uint16_t textC , Str
 }
 
 void drawButtonSection(String btn1, String btn2, String btn3){
+  M5.Lcd.setTextSize(2);
   drawButton(35,205,70,30,GRAY,WHITE,btn1,true,false);
   drawButton(128,205,70,30,GRAY,WHITE,btn2,true,false);
   drawButton(222,205,70,30,GRAY,WHITE,btn3,true,false);
@@ -94,6 +103,7 @@ void nextButton(){
 }
 
 void popupSurface(){
+  M5.Lcd.setTextSize(2);
   drawButton(30,30,270,140,GRAY,RED,String(""),true,true);
   drawButton(40,85,250,30,GRAY,RED,String("! SURFACE INVALIDE !"),true,false);
   // option button section
@@ -123,7 +133,7 @@ void menuOption (){
           action = 0;
           menu = 2;
           menuSurface();
-          break;
+          return;
           
         case 2: // Go to the counter
           action = 0;
@@ -156,6 +166,7 @@ void menuOption (){
   M5.Lcd.setTextSize(3);
   M5.Lcd.setCursor(100, 10);
   M5.Lcd.print("OPTION:");
+  M5.Lcd.setTextSize(2);
   // drawing button section
   drawButton(20,40,220,30,GRAY,WHITE,String("compte auto:"),false,select[0]==1);
     // display auto count bolean
@@ -178,14 +189,31 @@ void menuOption (){
 
 }
 
+void digitSelection(){
+  modifDigit += 1;
+  for (int i=0;i<4;i++){
+    selectDigits[i] = 0;
+  }
+  if (modifDigit>3){
+    modifDigit=0;
+  }
+  selectDigits[modifDigit] = 1;
+}
+
 void menuSurface(){
+  majDistance = true;
   // action section {none, btnA, btnB, btnC}
   switch(action){
     case 0:
       break;
     case 1: // btnA
+      digitSelection();
       break;
     case 2: // btnB
+      indexDigits[modifDigit] +=1;
+      if(indexDigits[modifDigit]>9){
+        indexDigits[modifDigit]=0;
+      }
       break;
     case 3: // Go to the option menu btnC
       menu = 0;
@@ -204,16 +232,29 @@ void menuSurface(){
   // Writing poeples number
   M5.Lcd.setTextSize(2);
   M5.Lcd.setCursor(10, 50);
-  M5.Lcd.println("surface du magasin");/*
+  M5.Lcd.println("surface du magasin");
+  MAJSurface();
+  M5.Lcd.setTextSize(5);
+  for (int i=0;i<4;i++){    
+    drawButton(30+int(i*40),75,35,50,BLACK,WHITE,String(digits[indexDigits[i]]),false,selectDigits[i]==1);
+  }
   
+  M5.Lcd.setCursor(200, 80);
+  M5.Lcd.print("m");
+  M5.Lcd.setTextSize(3);
+  M5.Lcd.setCursor(230, 75);
+  M5.Lcd.print("2");
+  
+  
+  /*
   delay(1000);
   M5.Lcd.setTextSize(5);
   M5.Lcd.setCursor(10,90);
   compteurDetection();
   M5.Lcd.print(poeplesNumber);*/
   // option button section
-  btnName1 = String("");
-  btnName2 = String("");
+  btnName1 = String("Suiv.");
+  btnName2 = String("+1");
   btnName3 = String("Ret.");
   
   drawButtonSection( btnName1, btnName2, btnName3);
@@ -254,6 +295,11 @@ void menuCounter(){
   compteurDetection();
   M5.Lcd.print(poeplesNumber);*/
   displayCountValue();
+  if (aeraAutoCount and surface > 10){
+    M5.Lcd.setCursor(180,100);
+    M5.Lcd.print("/");
+    M5.Lcd.print(int(surface / 10));
+  }
   // option button section
   btnName1 = String("Reset");
   btnName2 = String("");
@@ -265,8 +311,11 @@ void menuCounter(){
 void displayCountValue(){
   compteurDetection();
   M5.Lcd.setTextSize(5);
-  M5.Lcd.fillRect(10, 90, 300, 50, BLACK);
+  M5.Lcd.fillRect(10, 90, 150, 50, BLACK);
   M5.Lcd.setCursor(10,90);
+  if (poeplesNumber > 999){
+    poeplesNumber=0;
+  }
   M5.Lcd.print(poeplesNumber);
 }
 
@@ -356,7 +405,7 @@ void compteurDetection(){
   if(oldDist-dist > 20){ // input detection
     while ( oldDist2-dist2 < 21 and oldDist-dist > 20){
       M5.Lcd.setTextSize(2);
-      M5.Lcd.fillRect(90, 150, 300, 50, BLACK);
+      M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       M5.Lcd.setCursor(90, 150);
       M5.Lcd.print(oldDist-dist);
       M5.Lcd.print(" ");
@@ -372,7 +421,7 @@ void compteurDetection(){
   else if(oldDist2-dist2 > 20){ // output detection
       M5.Lcd.setTextSize(2);
     while ( oldDist-dist < 21 and oldDist2-dist2 > 20){
-      M5.Lcd.fillRect(90, 150, 300, 50, BLACK);
+      M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       M5.Lcd.setCursor(90, 150);
       M5.Lcd.print(oldDist-dist);
       M5.Lcd.print(" ");
@@ -431,6 +480,7 @@ void loop() {
         break;
       case 2: // surface modif menu
         majDistance = false;
+        menuSurface();
         break;
       case 3: // counter menu
         menuCounter();
