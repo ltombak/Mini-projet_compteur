@@ -1,0 +1,145 @@
+[
+    {
+        "id": "a4d31caf.480e6",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "3736e803.14e81",
+        "type": "serial in",
+        "z": "a4d31caf.480e6",
+        "name": "m5BT",
+        "serial": "ea878395.01bc4",
+        "x": 150,
+        "y": 400,
+        "wires": [
+            [
+                "a4fad5e3.7770d8"
+            ]
+        ]
+    },
+    {
+        "id": "fc1b6ffe.fec6b",
+        "type": "debug",
+        "z": "a4d31caf.480e6",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 590,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "ccce8ad1.1fead8",
+        "type": "influxdb out",
+        "z": "a4d31caf.480e6",
+        "influxdb": "e163a1d9.4c0bf8",
+        "name": "",
+        "measurement": "m5_test_2",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 610,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "a4fad5e3.7770d8",
+        "type": "function",
+        "z": "a4d31caf.480e6",
+        "name": "transport payload",
+        "func": "return msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 350,
+        "y": 400,
+        "wires": [
+            [
+                "fc1b6ffe.fec6b"
+            ]
+        ]
+    },
+    {
+        "id": "3ab1f0ce.8337f8",
+        "type": "function",
+        "z": "a4d31caf.480e6",
+        "name": "test payload",
+        "func": "msg.payload = {\n    numValue: 123.0,\n    strValue: \"message\",\n    randomValue: Math.random()*10\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 370,
+        "y": 280,
+        "wires": [
+            [
+                "19092160.0ccf97",
+                "ccce8ad1.1fead8"
+            ]
+        ]
+    },
+    {
+        "id": "9a00725d.7f10f",
+        "type": "inject",
+        "z": "a4d31caf.480e6",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 180,
+        "y": 280,
+        "wires": [
+            [
+                "3ab1f0ce.8337f8"
+            ]
+        ]
+    },
+    {
+        "id": "19092160.0ccf97",
+        "type": "debug",
+        "z": "a4d31caf.480e6",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 610,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ea878395.01bc4",
+        "type": "serial-port",
+        "z": "",
+        "serialport": "/dev/rfcomm0",
+        "serialbaud": "115200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "waitfor": "",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": "true",
+        "responsetimeout": ""
+    },
+    {
+        "id": "e163a1d9.4c0bf8",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "db_m5_test",
+        "name": "m5_test",
+        "usetls": false,
+        "tls": ""
+    }
+]
