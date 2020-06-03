@@ -1,4 +1,12 @@
 #include<M5Stack.h>
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+BluetoothSerial SerialBT;
+
 const int trigPin = 22;
 const int echoPin = 21;
 const int trigPin2 = 16;
@@ -17,6 +25,7 @@ bool majDistance = false;
 bool BEEP = false;
 int action; //action {0, 1, 2, 3} -> {None, buttonA, buttonB, buttonC}
 unsigned int poeplesNumber = 0;
+unsigned int poeplesNumberTmp = 0;
 // int for surface 
 int digits[] = {0,1,2,3,4,5,6,7,8,9};
   // iD[0] = 10e3, iD[1] = 10e2, iD[2] = 10e1, iD[3] = 10e0
@@ -298,9 +307,6 @@ void menuCounter(){
   
   if (aeraAutoCount and surface > 10){
     displayCountValue();
-    if((poeplesNumber >= int(surface / 10)-1) ){
-      M5.Lcd.setTextColor(RED);
-    }
     M5.Lcd.setCursor(180,100);
     M5.Lcd.print("/");
     M5.Lcd.print(int(surface / 10));
@@ -326,7 +332,11 @@ void displayCountValue(){
   if (poeplesNumber > 999){
     poeplesNumber=0;
   }
+  if(poeplesNumber >= int(surface / 10)-1) {
+    M5.Lcd.setTextColor(RED);
+  }
   M5.Lcd.print(poeplesNumber);
+    M5.Lcd.setTextColor(WHITE);
 }
 
 void displayDistValue(){
@@ -416,7 +426,6 @@ void compteurDetection(){
     while ( oldDist2-dist2 < 21 and oldDist-dist > 20){
       M5.Lcd.setTextSize(2);
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
-      M5.Lcd.setCursor(90, 150);
       takeDistance();
       if (oldDist2-dist2 > 20 ){
         poeplesNumber += 1;
@@ -429,7 +438,6 @@ void compteurDetection(){
       M5.Lcd.setTextSize(2);
     while ( oldDist-dist < 21 and oldDist2-dist2 > 20){
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
-      M5.Lcd.setCursor(90, 150);
       takeDistance();
       if (oldDist-dist > 20 ){
         poeplesNumber -= 1;
@@ -444,6 +452,7 @@ void compteurDetection(){
 void setup() {
   M5.begin();
   Serial.begin(9600);
+  //SerialBT.begin("ESP32test"); 
   pinMode(trigPin, OUTPUT); 
   pinMode(echoPin, INPUT);// put your setup code here, to run once:
   pinMode(trigPin2, OUTPUT); 
@@ -488,6 +497,11 @@ void loop() {
         break;
       case 3: // counter menu
         menuCounter();
+        if (poeplesNumber != poeplesNumberTmp){
+          SerialBT.println(poeplesNumber);
+          poeplesNumberTmp = poeplesNumber;
+        }
+        
         break;
       case 4: // Distance menu
         menuDistance();
