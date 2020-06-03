@@ -14,6 +14,7 @@ int menu = 0;
 bool refresh = false;
 bool aeraAutoCount = false;
 bool majDistance = false;
+bool BEEP = false;
 int action; //action {0, 1, 2, 3} -> {None, buttonA, buttonB, buttonC}
 unsigned int poeplesNumber = 0;
 // int for surface 
@@ -294,11 +295,20 @@ void menuCounter(){
   M5.Lcd.setCursor(10,90);
   compteurDetection();
   M5.Lcd.print(poeplesNumber);*/
-  displayCountValue();
+  
   if (aeraAutoCount and surface > 10){
+    displayCountValue();
+    if((poeplesNumber >= int(surface / 10)-1) ){
+      M5.Lcd.setTextColor(RED);
+    }
     M5.Lcd.setCursor(180,100);
     M5.Lcd.print("/");
     M5.Lcd.print(int(surface / 10));
+    M5.Lcd.setTextColor(WHITE);
+  }
+  else {
+    M5.Lcd.setTextColor(WHITE);
+    displayCountValue();
   }
   // option button section
   btnName1 = String("Reset");
@@ -407,9 +417,6 @@ void compteurDetection(){
       M5.Lcd.setTextSize(2);
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       M5.Lcd.setCursor(90, 150);
-      M5.Lcd.print(oldDist-dist);
-      M5.Lcd.print(" ");
-      M5.Lcd.print(oldDist2-dist2);
       takeDistance();
       if (oldDist2-dist2 > 20 ){
         poeplesNumber += 1;
@@ -423,9 +430,6 @@ void compteurDetection(){
     while ( oldDist-dist < 21 and oldDist2-dist2 > 20){
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       M5.Lcd.setCursor(90, 150);
-      M5.Lcd.print(oldDist-dist);
-      M5.Lcd.print(" ");
-      M5.Lcd.print(oldDist2-dist2);
       takeDistance();
       if (oldDist-dist > 20 ){
         poeplesNumber -= 1;
