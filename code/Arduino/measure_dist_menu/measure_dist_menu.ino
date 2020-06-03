@@ -451,6 +451,7 @@ void compteurDetection(){
 
 void setup() {
   M5.begin();
+  Serial.begin(115200);
   SerialBT.begin("ESP32test"); 
   pinMode(trigPin, OUTPUT); 
   pinMode(echoPin, INPUT);// put your setup code here, to run once:
