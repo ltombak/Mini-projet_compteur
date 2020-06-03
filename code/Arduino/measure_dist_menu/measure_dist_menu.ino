@@ -24,8 +24,8 @@ bool aeraAutoCount = false;
 bool majDistance = false;
 bool BEEP = false;
 int action; //action {0, 1, 2, 3} -> {None, buttonA, buttonB, buttonC}
-unsigned int poeplesNumber = 0;
-unsigned int poeplesNumberTmp = 0;
+unsigned int peoplesNumber = 0;
+unsigned int peoplesNumberTmp = 0;
 // int for surface 
 int digits[] = {0,1,2,3,4,5,6,7,8,9};
   // iD[0] = 10e3, iD[1] = 10e2, iD[2] = 10e1, iD[3] = 10e0
@@ -261,7 +261,7 @@ void menuSurface(){
   M5.Lcd.setTextSize(5);
   M5.Lcd.setCursor(10,90);
   compteurDetection();
-  M5.Lcd.print(poeplesNumber);*/
+  M5.Lcd.print(peoplesNumber);*/
   // option button section
   btnName1 = String("Suiv.");
   btnName2 = String("+1");
@@ -277,10 +277,10 @@ void menuCounter(){
     case 0:
       break;
     case 1: // btnA
-      poeplesNumber = 0;
+      peoplesNumber = 0;
       break;
     case 2: // btnB
-      poeplesNumber += 1;
+      peoplesNumber += 1;
       break;
     case 3: // Go to the option menu btnC
       menu = 0;
@@ -303,7 +303,7 @@ void menuCounter(){
   M5.Lcd.setTextSize(5);
   M5.Lcd.setCursor(10,90);
   compteurDetection();
-  M5.Lcd.print(poeplesNumber);*/
+  M5.Lcd.print(peoplesNumber);*/
   
   if (aeraAutoCount and surface > 10){
     displayCountValue();
@@ -329,13 +329,13 @@ void displayCountValue(){
   M5.Lcd.setTextSize(5);
   M5.Lcd.fillRect(10, 90, 150, 50, BLACK);
   M5.Lcd.setCursor(10,90);
-  if (poeplesNumber > 999){
-    poeplesNumber=0;
+  if (peoplesNumber > 999){
+    peoplesNumber=0;
   }
-  if(poeplesNumber >= int(surface / 10)-1) {
+  if(peoplesNumber >= int(surface / 10)-1) {
     M5.Lcd.setTextColor(RED);
   }
-  M5.Lcd.print(poeplesNumber);
+  M5.Lcd.print(peoplesNumber);
     M5.Lcd.setTextColor(WHITE);
 }
 
@@ -428,7 +428,7 @@ void compteurDetection(){
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       takeDistance();
       if (oldDist2-dist2 > 20 ){
-        poeplesNumber += 1;
+        peoplesNumber += 1;
         return;
       }
       delay(2);
@@ -440,7 +440,7 @@ void compteurDetection(){
       M5.Lcd.fillRect(90, 150, 100, 50, BLACK);
       takeDistance();
       if (oldDist-dist > 20 ){
-        poeplesNumber -= 1;
+        peoplesNumber -= 1;
         return;
       }
       delay(2);
@@ -451,6 +451,7 @@ void compteurDetection(){
 
 void setup() {
   M5.begin();
+  Serial.begin(115200);
   SerialBT.begin("ESP32test"); 
   pinMode(trigPin, OUTPUT); 
   pinMode(echoPin, INPUT);// put your setup code here, to run once:
@@ -468,17 +469,7 @@ void loop() {
   M5.update();
   oldDist = dist;
   oldDist2 = dist2;
-  /*digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  dur = pulseIn(echoPin, HIGH);
-  dis= dur*0.034/2;*/
-  /*dist = distance(trigPin, echoPin);
-  delay(5);
-  dist2 = distance(trigPin2, echoPin2);
-  delay(5);*/
+
   takeDistance();
   if (refresh){
     switch(menu){
@@ -496,11 +487,11 @@ void loop() {
         break;
       case 3: // counter menu
         menuCounter();
-        if (poeplesNumber != poeplesNumberTmp){
-          SerialBT.println(poeplesNumber);
-          poeplesNumberTmp = poeplesNumber;
+        if (peoplesNumber != peoplesNumberTmp){
+          SerialBT.println(peoplesNumber);
+          delay(500);
+          peoplesNumberTmp = peoplesNumber;
         }
-        
         break;
       case 4: // Distance menu
         menuDistance();
@@ -529,20 +520,3 @@ void loop() {
   }
   distanceMajTimerLoop();
 }
-
-/* cal example
-     M5.Lcd.clear(BLUE);
-     M5.Lcd.setTextColor(WHITE);
-     M5.Lcd.setTextSize(3);
-     M5.Lcd.setCursor(3, 10);
-     M5.Lcd.print("DISTANCE CAL: ");
-     M5.Lcd.setCursor(3, 35);
-     M5.Lcd.println("DIST(cm):");
-     M5.Lcd.setTextSize(9);
-     M5.Lcd.setCursor(3, 70);
-     M5.Lcd.print(dis);
-     M5.Lcd.println("DIST2(cm):");
-     M5.Lcd.setTextSize(9);
-     M5.Lcd.setCursor(3, 80);
-     M5.Lcd.print(dis2);
-*/
